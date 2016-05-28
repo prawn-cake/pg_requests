@@ -1,0 +1,4 @@
+psycopg2
+mock
+nose
+coverage

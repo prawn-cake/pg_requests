@@ -1,0 +1,9 @@
+.project
+.pydevproject
+*.pyc
+.idea
+sysdev
+.env
+.vagrant
+.coverage
+.tox
