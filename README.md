@@ -4,14 +4,14 @@ PG Query
 [![Coverage Status](https://coveralls.io/repos/github/prawn-cake/pg_query/badge.svg?branch=master)](https://coveralls.io/github/prawn-cake/pg_query?branch=master)
 ![PythonVersions](https://www.dropbox.com/s/ck0nc28ttga2pw9/python-2.7_3.4-blue.svg?dl=1)
 
-PostgreSQL-specific sql query builder.
+PostgreSQL-specific query builder.
 
 ## Querying
 
 The library provides flexible way to make queries. All queries are executed in a safe manner, 
 i.e every query is a tuple of sql template string and tuple of parameters, e.g 
     
-    ('SELECT COUNT(*) FROM users WHERE ( name = %s )', ('Mr.Robot',))
+    ('SELECT * FROM users WHERE ( name = %s )', ('Mr.Robot',))
     
 And this is already prepared query for `psycopg2.cursor` execution, rely on that it also excludes sql-injection chances. 
 
@@ -58,9 +58,9 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
     # Query tuple
     ('SELECT COUNT(*) FROM users WHERE ( name = %s )', ('Mr.Robot',))
 
-##### Stored procedures (user-defined database functions)
+##### Calling stored procedures (user-defined database functions)
 
-    qf.select_fn('my_user_function', args=(1, 'str value', False))    
+    qf.call_fn('my_user_function', args=(1, 'str value', False))    
     
     # Query tuple
     ('SELECT * FROM my_user_function(%s, %s, %s)', (1, 'str value', False))

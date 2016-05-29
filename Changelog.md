@@ -6,11 +6,11 @@ Changelog
 ## TODO:
 * [Feature] Sub-queries, for example: SELECT * FROM (SELECT * FROM MyTable)
 * [Feature] JOIN ON functionality. Currently it supports JOIN USING syntax only
-* [Improvement] Tests for HAVING clause
-* [Fix] .filter(a__in) generates incorrect query, handle this case
+* [Improvement] Add optional validation for operators (e.g validate IN value args) 
 
 ### END OF TODO
 
+* [Improvement] Experimental support of pattern matching 'LIKE', 'ILIKE', 'SIMILAR TO' operator
 * [Feature] Support multiple .filter() clauses, concatenate it with AND operator
 * [Feature] SELECT {AggFunction} support: COUNT(*), AVG(*)
 * [Feature] SelectQuery: Basic join support with USING keyword

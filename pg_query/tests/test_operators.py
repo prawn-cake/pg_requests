@@ -7,7 +7,9 @@ class OperatorsTest(unittest.TestCase):
     def test_and_operator(self):
         condition = And({'a': 1, 'b__gt': 2, 'c__lt': 3, 'd__gte': 4,
                          'e__lte': 5, 'f__eq': 'test_eq', 'g__neq': 'test_neq',
-                         'h__in': ['p1', 2], 'i__is': True, 'j__is_not': None})
+                         'h__in': ['p1', 2], 'i__is': True, 'j__is_not': None,
+                         'k__like': 'name_%', 'l__similar_to': '%(b|d)%',
+                         'm__ilike': 'name_i%'})
         parts, values = condition.eval()
         expected_parts = (
             'j IS NOT %s',
@@ -19,9 +21,12 @@ class OperatorsTest(unittest.TestCase):
             'b > %s',
             'c < %s',
             'i IS %s',
-            'g != %s')
+            'g != %s',
+            'k LIKE %s',
+            'l SIMILAR TO %s',
+            'm ILIKE %s',)
         expected_values = (None, 5, 4, 1, ['p1', 2], 'test_eq', 2, 3, True,
-                           'test_neq')
+                           'test_neq', 'name_%', '%(b|d)%', 'name_i%')
         for p in expected_parts:
             self.assertIn(p, parts)
 

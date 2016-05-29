@@ -105,10 +105,14 @@ class QueryBuilder(object):
             # sql string and second is substitution value
             eval_result = token.eval()
             if isinstance(eval_result, str):
+                # sql string
                 sql_str_parts.append(eval_result)
             elif isinstance(eval_result, tuple):
+                # sql string + tuple of values
                 sql_str_parts.append(eval_result[0])
-                values = eval_result[1]
+
+                # merge values tuple
+                values += tuple(eval_result[1])
 
         query = (' '.join(sql_str_parts), values)
         return query
@@ -212,8 +216,8 @@ class SelectQuery(QueryBuilder):
             self._set_token_value('SELECT', '*')
         return self
 
-    def select_fn(self, fn_name, args):
-        """Select database user-defined function, like
+    def call_fn(self, fn_name, args):
+        """Call user-defined function, like
         SELECT * FROM my_function('param1', 2, True)
 
         :param fn_name: str: function name
@@ -223,6 +227,8 @@ class SelectQuery(QueryBuilder):
         self.fields('*')._set_token_value('FROM__FN', fn_name)
         # Custom setter for sub-token
         token = self._get_token('FROM__FN')
+        # NOTE: subtoken value will be glued with the main token value without
+        # a space
         token.subtoken.value = args
         return self
 
@@ -278,15 +284,16 @@ class SelectQuery(QueryBuilder):
             self._set_token_value('WHERE', new_value)
         return self
 
+    # NOTE: python 3 syntax only
     # def order_by(self, *args, desc=False):
-    def order_by(self, *args):
+    def order_by(self, *args, **kwargs):
         args = list(filter(None, args))
         if args:
             self._set_token_value('ORDER_BY', args)
 
-            # Ordering descending option
-            # if desc:
-            #     self._set_token_value('DESC', True)
+        # Descending order option
+        if kwargs.get('desc'):
+            self._set_token_value('DESC', True)
         return self
 
     def desc(self):
@@ -406,8 +413,8 @@ class QueryFacade(object):
         return SelectQuery().select(table_name, alias=alias)
 
     @staticmethod
-    def select_fn(fn_name, args):
-        return SelectQuery().select_fn(fn_name, args=args)
+    def call_fn(fn_name, args):
+        return SelectQuery().call_fn(fn_name, args=args)
 
     @staticmethod
     def insert(table_name):

@@ -47,7 +47,7 @@ class SelectQueryTest(unittest.TestCase):
         """Test query like SELECT * FROM my_fn('arg1', 'arg2')
 
         """
-        result = qf.select_fn('my_fn', args=('a', 1, True)).get_raw()
+        result = qf.call_fn('my_fn', args=('a', 1, True)).get_raw()
         expected = (
             ('SELECT * FROM my_fn(%s, %s, %s)', ('a', 1, True, ))
         )
@@ -108,6 +108,16 @@ class SelectQueryTest(unittest.TestCase):
              ('anonymous', 'Mr.Robot', 'John')),
         )
         self.assertIn(query, expected_sets)
+
+    def test_select_with_having_clause(self):
+        query = qf.select('users')\
+            .fields(fn.COUNT('*', alias='cnt'))\
+            .filter(name='Mr.Robot')\
+            .having(cnt__gte=4).get_raw()
+        expected = (
+            "SELECT COUNT(*) AS 'cnt' FROM users WHERE ( name = %s ) "
+            "HAVING ( cnt >= %s )", ('Mr.Robot', 4,))
+        self.assertEqual(query, expected)
 
 
 class InsertQueryTest(unittest.TestCase):

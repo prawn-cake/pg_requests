@@ -72,7 +72,13 @@ class ConditionOperator(Evaluable):
         'neq': '!=',  # not equal
         'is': 'IS',
         'is_not': 'IS NOT',
-        'in': 'IN'
+        'in': 'IN',
+
+        # NOTE: Pattern matching operators
+        # More info: https://www.postgresql.org/docs/9.3/static/functions-matching.html
+        'like': 'LIKE',
+        'ilike': 'ILIKE',
+        'similar_to': 'SIMILAR TO'
     }
     OP_SEPARATOR = '__'
 
