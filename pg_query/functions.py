@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from pg_query.operators import Evaluable
 from pg_query.tokens import CommaValue
 
 
@@ -9,9 +8,11 @@ class Function(object):
     def __init__(self, name):
         self.name = name
 
-    def __call__(self, *args, alias=None):
+    # NOTE: python 3 syntax only
+    # def __call__(self, *args, alias=None):
+    def __call__(self, *args, **kwargs):
         value = CommaValue(args)
-
+        alias = kwargs.get('alias')
         if alias:
             fn_str = "{}({}) AS '{}'".format(self.name, value.eval(), alias)
         else:
@@ -31,7 +32,7 @@ class FunctionFactory(object):
     """
     _FUNCTIONS = ('COUNT', 'AVG', 'MIN', 'MAX', 'SUM')
 
-    def __init__(self, rtype):
+    def __init__(self, rtype=Function):
         self.rtype = rtype
 
     def __getattr__(self, name):
