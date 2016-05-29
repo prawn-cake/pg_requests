@@ -1,0 +1,17 @@
+# Latest one
+postgresql:
+  ports:
+    - "0.0.0.0:5432:5432"
+  extends:
+    file: compose/common.yml
+    service: postgresql_common
+
+# Older versions
+postgresql_90:
+  container_name: pg_query_system_test
+  ports:
+    - "0.0.0.0:54390:5432"
+  dockerfile: Dockerfile.pg90
+  extends:
+    file: compose/common.yml
+    service: postgresql_common

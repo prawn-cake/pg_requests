@@ -9,9 +9,14 @@ class Function(object):
     def __init__(self, name):
         self.name = name
 
-    def __call__(self,  *args):
+    def __call__(self, *args, alias=None):
         value = CommaValue(args)
-        return "{}({})".format(self.name, value.eval())
+
+        if alias:
+            fn_str = "{}({}) AS '{}'".format(self.name, value.eval(), alias)
+        else:
+            fn_str = "{}({})".format(self.name, value.eval())
+        return fn_str
 
     def __repr__(self):
         return "%s(name=%s(*args))" % (self.__class__.__name__, self.name)
@@ -22,8 +27,9 @@ class FunctionFactory(object):
 
     Usage:
         fn.COUNT('*') --> 'COUNT(*)'
+        fn.COUNT('*', alias='count_all') --> 'COUNT(*) AS count_all'
     """
-    FUNCTIONS = ('COUNT', 'AVG', 'MIN', 'MAX', 'SUM')
+    _FUNCTIONS = ('COUNT', 'AVG', 'MIN', 'MAX', 'SUM')
 
     def __init__(self, rtype):
         self.rtype = rtype

@@ -9,3 +9,9 @@ class FunctionFactoryTest(unittest.TestCase):
         self.assertIsInstance(f, Function)
         self.assertEqual(f.name, 'COUNT')
         self.assertEqual(f('*'), 'COUNT(*)')
+        self.assertEqual(fn.COUNT('x'), 'COUNT(x)')
+
+    def test_function_with_alias(self):
+        self.assertEqual(fn.MAX('x', alias='max_x'), "MAX(x) AS 'max_x'")
+        self.assertEqual(fn.MAX('x', alias='alias with space'),
+                         "MAX(x) AS 'alias with space'")

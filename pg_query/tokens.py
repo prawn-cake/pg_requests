@@ -24,6 +24,13 @@ class TokenValue(Evaluable):
         """
         return value
 
+    def update(self, value):
+        """Update method. By default just replaces old value with a given one
+
+        :param value:
+        """
+        self.value = self.validate(value)
+
     def __repr__(self):
         return "%s(value=%s)" % (self.__class__.__name__, self.value)
 
@@ -213,6 +220,10 @@ class ConditionalValue(TokenValue):
 
     @classmethod
     def validate(cls, value):
+        """Validate conditional value
+
+        :rtype : ConditionOperator
+        """
         if not isinstance(value, (ConditionOperator, dict, QueryOperator)):
             raise ValueError(
                 "Wrong value type for '%s' instance, must be %s,"
@@ -220,6 +231,10 @@ class ConditionalValue(TokenValue):
                                 QueryOperator.__name__))
         if isinstance(value, dict):
             value = And(value)
+        elif isinstance(value, QueryOperator):
+            # unpack Q operator, extract condition
+            value = value.condition
+
         return value
 
     def eval(self):
@@ -230,3 +245,12 @@ class ConditionalValue(TokenValue):
         """
         sql_str, values = self.value.eval()
         return sql_str, values
+
+    def update(self, value):
+        """Update conditional value with And operator.
+        This is used by .filter() operation, so if
+
+        :param value:
+        """
+        validated = self.validate(value)
+        self.value = And(self.value, validated)

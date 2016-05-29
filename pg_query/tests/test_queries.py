@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 from pg_query import query_facade as qf
-from pg_query.operators import And
+from pg_query.functions import fn
+from pg_query.operators import And, Q
 
 
 class BaseQueryBuilderTest(unittest.TestCase):
@@ -68,11 +69,51 @@ class SelectQueryTest(unittest.TestCase):
         self.assertEqual(
             sql, 'SELECT * FROM MyTable1 INNER JOIN MyTable2 USING (id, name)')
 
+    def test_select_with_agg_functions(self):
+        raw_query = qf.select('users')\
+            .fields(fn.COUNT('*'))\
+            .filter(name='Mr.Robot').get_raw()
+        self.assertEqual(
+            raw_query,
+            ('SELECT COUNT(*) FROM users WHERE ( name = %s )', ('Mr.Robot',)))
+
+    def test_select_with_multiple_filter_calls(self):
+        """Test the corner case when .filter() method is being called multiple
+        times. Query builder concatenate it with AND operator
+        """
+        # With kwargs
+        query = qf.select('users')\
+            .filter(name='Mr.Robot')\
+            .filter(login='anonymous')\
+            .get_raw()
+        self.assertEqual(
+            query,
+            ('SELECT * FROM users WHERE ( ( name = %s ) AND ( login = %s ) )',
+             ('Mr.Robot', 'anonymous'))
+        )
+
+        # With Q objects
+        query = qf.select('users')\
+            .filter(Q(name='Mr.Robot') | Q(login='anonymous'))\
+            .filter(Q(name='John'))\
+            .get_raw()
+
+        expected_sets = (
+            ('SELECT * FROM users WHERE ( ( ( name = %s ) OR ( login = %s ) ) '
+             'AND ( name = %s ) )',
+             ('Mr.Robot', 'anonymous', 'John')),
+
+            ('SELECT * FROM users WHERE ( ( ( login = %s ) OR ( name = %s ) ) '
+             'AND ( name = %s ) )',
+             ('anonymous', 'Mr.Robot', 'John')),
+        )
+        self.assertIn(query, expected_sets)
+
 
 class InsertQueryTest(unittest.TestCase):
     def test_insert_single_row(self):
         sql_tpl = qf.insert('MyTable')\
-            .values(name='Alex', gender='M')\
+            .data(name='Alex', gender='M')\
             .get_raw()
 
         # Expect return values in different, but still correct order
@@ -87,7 +128,7 @@ class InsertQueryTest(unittest.TestCase):
 
     def test_insert_single_row_with_returning_value(self):
         sql_tpl = qf.insert('MyTable')\
-            .values(name='Alex', gender='M')\
+            .data(name='Alex', gender='M')\
             .returning('id')\
             .get_raw()
 

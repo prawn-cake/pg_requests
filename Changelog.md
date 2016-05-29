@@ -5,12 +5,14 @@ Changelog
 --------------------
 ## TODO:
 * [Feature] Sub-queries, for example: SELECT * FROM (SELECT * FROM MyTable)
-* [Feature] SELECT {Function} support: COUNT(*), AVG(*)
-* [Feature] Support multiple .filter() clauses, currently the value will be overwritten on every .filter() call
 * [Feature] JOIN ON functionality. Currently it supports JOIN USING syntax only
-* [Feature] Tests for HAVING clause
+* [Improvement] Tests for HAVING clause
+* [Fix] .filter(a__in) generates incorrect query, handle this case
+
 ### END OF TODO
 
+* [Feature] Support multiple .filter() clauses, concatenate it with AND operator
+* [Feature] SELECT {AggFunction} support: COUNT(*), AVG(*)
 * [Feature] SelectQuery: Basic join support with USING keyword
 * [Feature] SelectQuery: Offset option
 * [Feature] User-function calls: SELECT * FROM my_custom_function(%s, %s, %s)

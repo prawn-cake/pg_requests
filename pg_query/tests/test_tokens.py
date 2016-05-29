@@ -132,7 +132,20 @@ class TokenValuesTest(unittest.TestCase):
         pass
 
     def test_conditional_value(self):
-        pass
+        val = ConditionalValue({'a': 1, 'b': 2})
+        self.assertIsInstance(val.value, And)
+        values = (
+            ('( a = %s AND b = %s )', (1, 2)),
+            ('( b = %s AND a = %s )', (2, 1)),
+        )
+        self.assertIn(val.eval(), values)
+        val.update({'a': 2, 'c': 3})
+        tokens = ('a = %s', 'b = %s', 'c = %s')
+        values = (1, 2, 3)
+        evaluated_val = val.eval()
+        for t, v in zip(tokens, values):
+            self.assertIn(t, evaluated_val[0])
+            self.assertIn(v, evaluated_val[1])
 
     def test_dict_value(self):
         t_val = DictValue(dict(a=1, b=2))

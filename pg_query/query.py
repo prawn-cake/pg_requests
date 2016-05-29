@@ -213,12 +213,12 @@ class SelectQuery(QueryBuilder):
         return self
 
     def select_fn(self, fn_name, args):
-        """Select user-function, like
+        """Select database user-defined function, like
         SELECT * FROM my_function('param1', 2, True)
 
-        :param fn_name: str: user-function name
-        :param args: tuple: user-function arguments tuple
-        :return:
+        :param fn_name: str: function name
+        :param args: tuple: function arguments tuple
+        :return: function result
         """
         self.fields('*')._set_token_value('FROM__FN', fn_name)
         # Custom setter for sub-token
@@ -259,12 +259,23 @@ class SelectQuery(QueryBuilder):
         return self
 
     def filter(self, *args, **kwargs):
+        token = self._get_token('WHERE')
+        new_value = None
         if args:
             # In case of QueryOperators
-            self._set_token_value('WHERE', args[0])
+            new_value = args[0]
         elif kwargs:
             # In case of simple key-value filters
-            self._set_token_value('WHERE', kwargs)
+            new_value = kwargs
+
+        # Stub to prevent errors
+        if new_value is None:
+            return self
+
+        if token.value:
+            token.value.update(new_value)
+        else:
+            self._set_token_value('WHERE', new_value)
         return self
 
     # def order_by(self, *args, desc=False):
@@ -309,8 +320,10 @@ class InsertQuery(QueryBuilder):
 
     Query example:
 
-    >>> insert('MyTable').fields('name', 'gender',).values('Alex', 'M')\
-    .returning('id').execute(cursor)\
+    >>> insert('users')\
+        .data(name='Alex', gender='M')\
+        .returning('id')\
+        .execute(cursor)
 
     """
 
@@ -329,11 +342,8 @@ class InsertQuery(QueryBuilder):
         self._set_table_name('INSERT', table_name)
         return self
 
-    def values(self, **kwargs):
-        """Set key and values for insert query
-
-        NOTE: order of input parameters not guaranteed, but always correspond
-        to values
+    def data(self, **kwargs):
+        """Insert values data
 
         :return:
         """

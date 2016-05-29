@@ -69,7 +69,7 @@ class ConditionOperator(Evaluable):
         'lt': '<',    # less than
         'gte': '>=',  # greater or equal
         'lte': '<=',  # less or equal
-        'neq': '!=',   # not equal
+        'neq': '!=',  # not equal
         'is': 'IS',
         'is_not': 'IS NOT',
         'in': 'IN'
