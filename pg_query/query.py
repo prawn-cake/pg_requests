@@ -400,8 +400,26 @@ class UpdateQuery(QueryBuilder):
         ('WHERE', Token(template='WHERE {}', value_type=FilterValue)),
     ])
 
-    # Derive filter functionality from SelectQuery
-    filter = SelectQuery.filter
+    # NOTE: this is a full copy from SelectQuery
+    def filter(self, *args, **kwargs):
+        token = self._get_token('WHERE')
+        new_value = None
+        if args:
+            # In case of QueryOperators
+            new_value = args[0]
+        elif kwargs:
+            # In case of simple key-value filters
+            new_value = kwargs
+
+        # Stub to prevent errors
+        if new_value is None:
+            return self
+
+        if token.value:
+            token.value.update(new_value)
+        else:
+            self._set_token_value('WHERE', new_value)
+        return self
 
     def update(self, table_name):
         """Update a table

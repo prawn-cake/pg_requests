@@ -78,7 +78,6 @@ class SelectQueryTest(unittest.TestCase):
                     ('Mr.Robot',))
         self.assertEqual(query, expected)
 
-
     def test_select_with_agg_functions(self):
         raw_query = qf.select('users')\
             .fields(fn.COUNT('*'))\
