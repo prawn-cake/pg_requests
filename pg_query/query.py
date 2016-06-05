@@ -4,7 +4,7 @@ import copy
 from pg_query.operators import JOIN
 
 from pg_query.tokens import Token, CommaValue, StringValue, \
-    ConditionalValue, NullValue, TupleValue, DictValue
+    FilterValue, NullValue, TupleValue, DictValue, CommaDictValue
 
 
 class QueryBuilder(object):
@@ -186,13 +186,13 @@ class SelectQuery(QueryBuilder):
         ('JOIN__USING', Token(template='USING ({})', value_type=CommaValue)),
 
         # NOTE: here is quite complex logic, see ConditionalValue imp
-        ('WHERE', Token(template='WHERE {}', value_type=ConditionalValue)),
+        ('WHERE', Token(template='WHERE {}', value_type=FilterValue)),
 
         ('GROUP_BY', Token(template='GROUP BY {}', value_type=CommaValue)),
 
         # TODO: add tests for having
         ('GROUP_BY__HAVING', Token(template='HAVING {}', 
-                                   value_type=ConditionalValue)),
+                                   value_type=FilterValue)),
 
         ('ORDER_BY', Token(template='ORDER BY {}', value_type=CommaValue)),
         ('DESC', Token(template='DESC', value_type=NullValue)),
@@ -391,7 +391,48 @@ class InsertQuery(QueryBuilder):
 
 
 class UpdateQuery(QueryBuilder):
-    pass
+    TOKENS = OrderedDict([
+        ('UPDATE', Token(template='UPDATE {}', value_type=StringValue,
+                         required=True)),
+        ('SET', Token(template='SET {}', value_type=CommaDictValue,
+                      required=True)),
+        ('FROM', Token(template='FROM {}', value_type=StringValue)),
+        ('WHERE', Token(template='WHERE {}', value_type=FilterValue)),
+    ])
+
+    # Derive filter functionality from SelectQuery
+    filter = SelectQuery.filter
+
+    def update(self, table_name):
+        """Update a table
+
+        :param table_name: str
+        :return: self
+        """
+        sanitized_tn = self._sanitize_table_name(table_name)
+        self._set_token_value('UPDATE', sanitized_tn)
+        return self
+
+    def data(self, **kwargs):
+        self._set_token_value('SET', kwargs)
+        return self
+
+    def _from(self, table_name):
+        """Update FROM (JOIN in fact) postgres syntax
+
+        SQL representation:
+            UPDATE accounts
+                SET contact_first_name = first_name,
+                    contact_last_name = last_name
+            FROM salesmen
+            WHERE salesmen.id = accounts.sales_id;
+
+        :param table_name: str
+        :return: self
+        """
+        sanitized_tn = self._sanitize_table_name(table_name)
+        self._set_token_value('FROM', sanitized_tn)
+        return self
 
 
 class DeleteQuery(QueryBuilder):
@@ -422,7 +463,7 @@ class QueryFacade(object):
 
     @staticmethod
     def update(table_name):
-        raise NotImplementedError('Not implemented yet')
+        return UpdateQuery().update(table_name)
 
     @staticmethod
     def delete(table_name):

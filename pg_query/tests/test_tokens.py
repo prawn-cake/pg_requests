@@ -3,7 +3,7 @@ import unittest
 from pg_query.exceptions import TokenError
 from pg_query.operators import And, JOIN
 from pg_query.tokens import Token, TupleValue, CommaValue, StringValue, \
-    NullValue, ConditionalValue, DictValue
+    NullValue, FilterValue, DictValue, CommaDictValue
 
 
 class TokensTest(unittest.TestCase):
@@ -49,8 +49,8 @@ class TokensTest(unittest.TestCase):
         self.assertIsInstance(token.value, NullValue)
         self.assertEqual(token.eval(), "DEFAULT VALUES")
 
-    def test_token_with_conditional_value(self):
-        token = Token(template='WHERE {}', value_type=ConditionalValue)
+    def test_token_with_filter_value(self):
+        token = Token(template='WHERE {}', value_type=FilterValue)
         token.value = {'a': 1, 'b__gt': 2, 'c__lt': 3, 'd__gte': 4,
                        'e__lte': 5, 'f__eq': 'test_eq', 'g__neq': 'test_neq',
                        'h__in': ['p1', 2], 'i__is': True, 'j__is_not': None}
@@ -123,7 +123,7 @@ class TokenValuesTest(unittest.TestCase):
         t_val = NullValue('test_value')
         self.assertEqual(t_val.eval(), None)
 
-    def test_iterable_value(self):
+    def test_comma_value(self):
         t_val = CommaValue(['id', 'name'])
         self.assertIsInstance(t_val.value, list)
         self.assertEqual(t_val.eval(), 'id, name')
@@ -131,8 +131,8 @@ class TokenValuesTest(unittest.TestCase):
     def test_tuple_value(self):
         pass
 
-    def test_conditional_value(self):
-        val = ConditionalValue({'a': 1, 'b': 2})
+    def test_filter_value(self):
+        val = FilterValue({'a': 1, 'b': 2})
         self.assertIsInstance(val.value, And)
         values = (
             ('( a = %s AND b = %s )', (1, 2)),
@@ -147,6 +147,17 @@ class TokenValuesTest(unittest.TestCase):
             self.assertIn(t, evaluated_val[0])
             self.assertIn(v, evaluated_val[1])
 
+    def test_filter_value_with_table_prefix(self):
+        # 2 key tokens, expect that 'eq' operator must be by default then
+        val = FilterValue({'users__login': 'Mr.Robot'})
+        expected_val = ('( users.login = %s )', ('Mr.Robot',))
+        self.assertEqual(val.eval(), expected_val)
+
+        # 3 key tokens: "<table>.<name>" and operator
+        val = FilterValue({'users__login__in': ('Mr.Robot', )})
+        expected_val = ('( users.login IN %s )', (('Mr.Robot', ),))
+        self.assertEqual(val.eval(), expected_val)
+
     def test_dict_value(self):
         t_val = DictValue(dict(a=1, b=2))
         self.assertIsInstance(t_val.value, dict)
@@ -156,3 +167,11 @@ class TokenValuesTest(unittest.TestCase):
             t_val = DictValue(1)
             self.assertIsNone(t_val)
             self.assertIn('must be dict', str(err))
+
+    def test_comma_dict_value(self):
+        t_val = CommaDictValue(dict(a=1, b=True))
+        expected = (
+            ('a = %s, b = %s', (1, True)),
+            ('b = %s, a = %s', (True, 1)),
+        )
+        self.assertIn(t_val.eval(), expected)

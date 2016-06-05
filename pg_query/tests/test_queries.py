@@ -2,7 +2,7 @@
 import unittest
 from pg_query import query_facade as qf
 from pg_query.functions import fn
-from pg_query.operators import And, Q
+from pg_query.operators import And, Q, JOIN
 
 
 class BaseQueryBuilderTest(unittest.TestCase):
@@ -64,10 +64,20 @@ class SelectQueryTest(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_join_with_using_keyword(self):
-        sql, values = qf.select('MyTable1')\
-            .join('MyTable2', using=('id', 'name')).get_raw()
+        sql, values = qf.select('users')\
+            .join('customers', using=('id', 'name')).get_raw()
         self.assertEqual(
-            sql, 'SELECT * FROM MyTable1 INNER JOIN MyTable2 USING (id, name)')
+            sql, 'SELECT * FROM users INNER JOIN customers USING (id, name)')
+
+    def test_with_different_join_types(self):
+        query = qf.select('users')\
+            .join('customers', join_type=JOIN.RIGHT_OUTER, using=('id', ))\
+            .filter(users__name='Mr.Robot').get_raw()
+        expected = ('SELECT * FROM users RIGHT OUTER JOIN customers USING (id)'
+                    ' WHERE ( users.name = %s )',
+                    ('Mr.Robot',))
+        self.assertEqual(query, expected)
+
 
     def test_select_with_agg_functions(self):
         raw_query = qf.select('users')\
@@ -170,3 +180,22 @@ class InsertQueryTest(unittest.TestCase):
             'INSERT INTO MyTable VALUES %s', ('(Alex, M), (Jane, F)', )
         )
         self.assertEqual(sql_tpl, expected_calls)
+
+
+class UpdateQueryTest(unittest.TestCase):
+    def test_simple_update(self):
+        query = qf.update('users').filter(name='Mr.Robot')\
+            .data(balance='balance + 100').get_raw()
+        expected = ('UPDATE users SET balance = %s WHERE ( name = %s )',
+                    ('balance + 100', 'Mr.Robot'))
+        self.assertEqual(query, expected)
+
+    def test_update_from_multiple_tables(self):
+        query = qf.update('users')._from('customers')\
+            .data(users__value='customers.value')\
+            .filter(users__id='customers.id').get_raw()
+        expected = (
+            'UPDATE users SET users.value = %s '
+            'FROM customers WHERE ( users.id = %s )',
+            ('customers.value', 'customers.id'))
+        self.assertEqual(query, expected)

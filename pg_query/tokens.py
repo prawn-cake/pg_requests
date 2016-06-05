@@ -215,7 +215,23 @@ class DictValue(TokenValue):
         return self.value
 
 
-class ConditionalValue(TokenValue):
+class CommaDictValue(TokenValue):
+    """Substitution key value token value
+    Use case: dict(a=1, b=2) --> "a=%s, b=%s", (1, 2)
+    """
+
+    def eval(self):
+        """Evaluate dict as a string and values tuple
+
+        :return: tuple
+        """
+        keys, values = ConditionOperator.parse_conditions(self.value)
+        return tuple([', '.join(keys), tuple(values)])
+
+    validate = DictValue.validate
+
+
+class FilterValue(TokenValue):
     """Complex value type is user in WHERE clause"""
 
     @classmethod

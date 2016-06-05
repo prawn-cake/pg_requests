@@ -154,6 +154,7 @@ class ConditionOperator(Evaluable):
     @classmethod
     def parse_dict_condition(cls, condition):
         """Parse dict condition to native operators.
+        Part of parse_conditions method
 
         Examples:
             {'a__lt': 1} to 'a < 1'
@@ -175,9 +176,17 @@ class ConditionOperator(Evaluable):
                 # operator case
                 operator = cls.OPERATORS.get(keys[1])
                 if not operator:
-                    raise ValueError('Operator `{}` is not supported in '
-                                     '{}: {}'.format(keys[1], key, value))
-                name = keys[0]
+                    # handle this as a "<table_name>.<field_name>"
+                    table_name, field_name = keys
+                    name = '%s.%s' % (table_name, field_name)
+                    operator = cls.OPERATORS['eq']
+                else:
+                    name = keys[0]
+            elif len(keys) == 3:
+                # compose the name as a "<table_name>.<field_name>"
+                table_name, field_name = keys[:2]
+                name = '%s.%s' % (table_name, field_name)
+                operator = cls.OPERATORS.get(keys[2])
             else:
                 raise ValueError('Wrong condition operator in `{}: {}`'.format(
                     key, value))

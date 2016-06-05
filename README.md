@@ -45,6 +45,23 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
     
     # The following SQL will be executed
     SELECT * FROM users INNER JOIN customers USING (id)
+    
+    # Using different join types
+    from pg_query.operators import JOIN
+    
+    qf.select('users')\
+        .join('customers', join_type=JOIN.RIGHT_OUTER, using=('id', ))\
+        .filter(users__name='Mr.Robot').execute(cursor)
+    
+    # Query value
+    ('SELECT * FROM users RIGHT OUTER JOIN customers USING (id) WHERE ( users.name = %s )', ('Mr.Robot',))
+
+###### {table}.{field} Key evaluation
+
+To use explicit form *{table}.{field}* you have to use the syntax:
+
+    qf.select('users')\
+        .join('customers', using=('id', )).filter(users__name='Mr.Robot').execute(cursor)
 
 #### Functions
 
@@ -64,20 +81,29 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
     
     # Query tuple
     ('SELECT * FROM my_user_function(%s, %s, %s)', (1, 'str value', False))
-    
+
+
 ### Insert
 
 #### Example
 
-    qf.insert('users')\
-        .data(name='x', login='y')\
-        .returning('id')\
-        .execute(cursor)
+    qf.insert('users').data(name='x', login='y').returning('id').execute(cursor)
     
     
 ### Update
 
-Not implemented
+#### Example
+    
+    # Basic example
+    qf.update('users').data(users='Mr.Robot').filter(id=1).execute(cursor)
+    
+    # Update from foreign table (with JOIN)
+    qf.update('users')._from('customers').data(users__value='customers.value')\
+        .filter(users__id='customers.id').execute(cursor)
+        
+
+**NOTE:** In the last example we use {table}__{field} syntax key evaluation
+    
 
 
 ### Delete
