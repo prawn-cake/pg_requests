@@ -6,9 +6,21 @@ PG Query
 
 PostgreSQL-specific query builder.
 
+## Why?
+
+In some cases using ORM or well-known frameworks is not applicable when we are 
+forced to work with database and plain sql directly. 
+
+It's quite easy to write simple sql queries until it becomes cumbersome: 
+long multi-line sql queries, wrong arguments evaluation creates risks for sql injections, 
+building up sql depends on input parameters and extra conditions make manual way unmaintainable and barely checkable
+
+The library provides handy way to build sql queries for PostgreSQL
+
+
 ## Querying
 
-The library provides flexible way to make queries. All queries are executed in a safe manner, 
+All queries are executed in a safe manner, 
 i.e every query is a tuple of sql template string and tuple of parameters, e.g 
     
     ('SELECT * FROM users WHERE ( name = %s )', ('Mr.Robot',))
