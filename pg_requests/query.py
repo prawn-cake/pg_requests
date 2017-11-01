@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict, Iterable
 import copy
-from pg_query.operators import JOIN
+from pg_requests.operators import JOIN
 
-from pg_query.tokens import Token, CommaValue, StringValue, \
+from pg_requests.tokens import Token, CommaValue, StringValue, \
     FilterValue, NullValue, TupleValue, DictValue, CommaDictValue
 
 
@@ -15,7 +15,7 @@ class QueryBuilder(object):
 
     # NOTE: tokens order is important
     TOKENS = OrderedDict([
-        # Format: {token_key}, pg_query.tokens.Token instance, example:
+        # Format: {token_key}, pg_requests.tokens.Token instance, example:
         # ('SELECT', Token(template='FROM {}', value_type=StringValue)),
     ])
 
@@ -159,7 +159,7 @@ class SelectQuery(QueryBuilder):
     query tokens.
 
     Example:
-    >>> from pg_query import query_facade as qf
+    >>> from pg_requests import query_facade as qf
     >>> qf.select('MyTable').fields('a', 'b').filter(score__gt=0).order_by('a').desc()
     """
     TOKENS = OrderedDict([
@@ -461,7 +461,7 @@ class QueryFacade(object):
     """Query facade. Combine all queries into the one facade
 
     Usage:
-    >>> from pg_query import query_facade as qf
+    >>> from pg_requests import query_facade as qf
 
     >>> qs = qf.select('MyTable').fields('id', 'name').execute(cursor)
     >>> result_set = qs.fetchall()

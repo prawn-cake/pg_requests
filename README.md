@@ -1,7 +1,7 @@
-PG Query
+pg_requests
 ========
-[![Build Status](https://travis-ci.org/prawn-cake/pg_query.svg?branch=master)](https://travis-ci.org/prawn-cake/pg_query)
-[![Coverage Status](https://coveralls.io/repos/github/prawn-cake/pg_query/badge.svg?branch=master)](https://coveralls.io/github/prawn-cake/pg_query?branch=master)
+[![Build Status](https://travis-ci.org/prawn-cake/pg_requests.svg?branch=master)](https://travis-ci.org/prawn-cake/pg_requests)
+[![Coverage Status](https://coveralls.io/repos/github/prawn-cake/pg_requests/badge.svg?branch=master)](https://coveralls.io/github/prawn-cake/pg_requests?branch=master)
 
 PostgreSQL-specific query builder.
 
@@ -32,7 +32,7 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
 
 **Starting point**
     
-    from pg_query import query_facade as qf
+    from pg_requests import query_facade as qf
 
 ### Select
     
@@ -62,7 +62,7 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
     SELECT * FROM users INNER JOIN customers USING (id)
     
     # Using different join types
-    from pg_query.operators import JOIN
+    from pg_requests.operators import JOIN
     
     qf.select('users')\
         .join('customers', join_type=JOIN.RIGHT_OUTER, using=('id', ))\
@@ -83,7 +83,7 @@ To use explicit form *{table}.{field}* you have to use the syntax:
 ##### Aggregation
     
     ...
-    from pg_query.functions import fn
+    from pg_requests.functions import fn
     
     qf.select('users').fields(fn.COUNT('*')).filter(name='Mr.Robot')
     

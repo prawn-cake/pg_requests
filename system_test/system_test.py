@@ -6,7 +6,7 @@ import time
 import psycopg2
 import unittest
 import logging
-from pg_query import query_facade as qf
+from pg_requests import query_facade as qf
 
 
 USERS = (

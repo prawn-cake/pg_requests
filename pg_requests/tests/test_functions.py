@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pg_query.functions import fn, Function
+from pg_requests.functions import fn, Function
 
 
 class FunctionFactoryTest(unittest.TestCase):

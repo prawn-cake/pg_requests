@@ -8,7 +8,7 @@ postgresql:
 
 # Older versions
 postgresql_90:
-  container_name: pg_query_system_test
+  container_name: pg_requests_system_test
   ports:
     - "0.0.0.0:54390:5432"
   dockerfile: Dockerfile.pg90

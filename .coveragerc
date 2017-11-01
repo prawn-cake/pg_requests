@@ -21,9 +21,9 @@ exclude_lines =
     if __name__ == .__main__.:
 
 include =
-    pg_query/*
+    pg_requests/*
 omit =
-    pg_query/tests/*
+    pg_requests/tests/*
 
 ignore_errors = True
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pg_query.tokens import CommaValue
+from pg_requests.tokens import CommaValue
 
 
 class Function(object):

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pg_query import query_facade as qf
-from pg_query.functions import fn
-from pg_query.operators import And, Q, JOIN
+from pg_requests import query_facade as qf
+from pg_requests.functions import fn
+from pg_requests.operators import And, Q, JOIN
 
 
 class BaseQueryBuilderTest(unittest.TestCase):

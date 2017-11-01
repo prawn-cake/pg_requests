@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import abc
 import re
-from pg_query.exceptions import TokenError
-from pg_query.operators import ConditionOperator, And, QueryOperator, Evaluable
+from pg_requests.exceptions import TokenError
+from pg_requests.operators import ConditionOperator, And, QueryOperator, Evaluable
 
 
 class TokenValue(Evaluable):

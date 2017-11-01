@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pg_query.operators import Or, And, Q
+from pg_requests.operators import Or, And, Q
 
 
 class OperatorsTest(unittest.TestCase):

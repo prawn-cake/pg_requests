@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pg_query.exceptions import TokenError
-from pg_query.operators import And, JOIN
-from pg_query.tokens import Token, TupleValue, CommaValue, StringValue, \
+from pg_requests.exceptions import TokenError
+from pg_requests.operators import And, JOIN
+from pg_requests.tokens import Token, TupleValue, CommaValue, StringValue, \
     NullValue, FilterValue, DictValue, CommaDictValue
 
 
