@@ -8,5 +8,13 @@ setup(
     license='MIT',
     author='Maksim Ekimovskii',
     author_email='ekimovsky.maksim@gmail.com',
-    description='PostgreSQL-specific query builder library'
+    description='PostgreSQL-specific query builder library',
+    classifiers=[
+        'Intended Audience :: Developers',
+
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ]
 )
