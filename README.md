@@ -2,7 +2,6 @@ PG Query
 ========
 [![Build Status](https://travis-ci.org/prawn-cake/pg_query.svg?branch=master)](https://travis-ci.org/prawn-cake/pg_query)
 [![Coverage Status](https://coveralls.io/repos/github/prawn-cake/pg_query/badge.svg?branch=master)](https://coveralls.io/github/prawn-cake/pg_query?branch=master)
-![PythonVersions](https://www.dropbox.com/s/ck0nc28ttga2pw9/python-2.7_3.4-blue.svg?dl=1)
 
 PostgreSQL-specific query builder.
 
@@ -16,6 +15,10 @@ long multi-line sql queries, wrong arguments evaluation creates risks for sql in
 building up sql depends on input parameters and extra conditions make manual way unmaintainable and barely checkable
 
 The library provides handy way to build sql queries for PostgreSQL
+
+## Requirements
+
+* python2.7, python3.4+
 
 
 ## Querying

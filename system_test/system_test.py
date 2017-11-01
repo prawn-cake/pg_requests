@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
 """Integration system test for database manager"""
 
-import sys
 import os
-import os.path as op
 import time
-
-
-sys.path.append(
-    op.abspath(op.dirname(__file__)) + '/../'
-)
-
 import psycopg2
 import unittest
 import logging
