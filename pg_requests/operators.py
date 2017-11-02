@@ -216,7 +216,7 @@ class And(ConditionOperator):
         return ' '.join(['(', condition_str, ')']), tuple(values)
 
 
-class QueryOperator(Evaluable):
+class QueryObject(Evaluable):
     """Query operator. Inspired by django Q object.
     Useful for more advanced filtering
 
@@ -244,4 +244,41 @@ class QueryOperator(Evaluable):
         return self.condition.eval()
 
 
-Q = QueryOperator
+class FieldExpression(Evaluable):
+    """Field expression. Similar to django F expression.
+    Allows to perform atomic operations directly pointing to the field value,
+    e.g make such queries:
+
+        UPDATE totals SET total = total + 1 WHERE name = 'bill';
+
+    Where 'total' becomes an F expression
+    """
+    def __init__(self, value):
+        self._value = value
+
+    def eval(self):
+        return self._value
+
+    def __add__(self, other):
+        return FieldExpression("{} + {}".format(self.eval(), other))
+
+    def __sub__(self, other):
+        return FieldExpression("{} - {}".format(self.eval(), other))
+
+    def __mul__(self, other):
+        return FieldExpression("{} * {}".format(self.eval(), other))
+
+    # py2 division method
+    def __div__(self, other):
+        return FieldExpression("{} / {}".format(self.eval(), other))
+
+    # py3 division methods
+    def __truediv__(self, other):
+        return FieldExpression("{} / {}".format(self.eval(), other))
+
+    def __floordiv__(self, other):
+        return FieldExpression("{} / {}".format(self.eval(), other))
+
+
+Q = QueryObject
+F = FieldExpression

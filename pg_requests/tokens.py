@@ -2,7 +2,7 @@
 import abc
 import re
 from pg_requests.exceptions import TokenError
-from pg_requests.operators import ConditionOperator, And, QueryOperator, Evaluable
+from pg_requests.operators import ConditionOperator, And, QueryObject, Evaluable
 
 
 class TokenValue(Evaluable):
@@ -240,14 +240,14 @@ class FilterValue(TokenValue):
 
         :rtype : ConditionOperator
         """
-        if not isinstance(value, (ConditionOperator, dict, QueryOperator)):
+        if not isinstance(value, (ConditionOperator, dict, QueryObject)):
             raise ValueError(
                 "Wrong value type for '%s' instance, must be %s,"
                 "dict or %s" % (cls.__name__, ConditionOperator.__name__,
-                                QueryOperator.__name__))
+                                QueryObject.__name__))
         if isinstance(value, dict):
             value = And(value)
-        elif isinstance(value, QueryOperator):
+        elif isinstance(value, QueryObject):
             # unpack Q operator, extract condition
             value = value.condition
 

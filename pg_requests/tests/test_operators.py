@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pg_requests.operators import Or, And, Q
+from pg_requests.operators import Or, And, Q, F
 
 
 class OperatorsTest(unittest.TestCase):
@@ -99,7 +99,7 @@ class OperatorsTest(unittest.TestCase):
             self.assertIn(v, expected_values)
 
 
-class QueryOperatorTest(unittest.TestCase):
+class QueryObjectTest(unittest.TestCase):
     def test_or(self):
         op1 = Q(a=1, b=2)
         op2 = Q(a=3, b=4)
@@ -125,3 +125,24 @@ class QueryOperatorTest(unittest.TestCase):
              (2, 1, 4, 3))
         )
         self.assertIn(res, expected)
+
+
+class FieldExpressionTest(unittest.TestCase):
+    def test_basic(self):
+        res = F('total').eval()
+        self.assertEqual(res, 'total')
+
+    def test_arithmetic(self):
+        res = F('total') + 1
+        self.assertIsInstance(res, F)
+        self.assertEqual(res.eval(), 'total + 1')
+
+        res = F('total') - 1
+        self.assertEqual(res.eval(), 'total - 1')
+
+        res = F('total') * 10
+        self.assertEqual(res.eval(), 'total * 10')
+
+        res = F('total') / 10
+        self.assertEqual(res.eval(), 'total / 10')
+
