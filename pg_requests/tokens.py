@@ -6,6 +6,8 @@ from pg_requests.operators import ConditionOperator, And, QueryObject, Evaluable
 
 
 class TokenValue(Evaluable):
+    """Base class of a parseable unit"""
+
     def __init__(self, value):
         self.value = self.validate(value)
 
@@ -232,7 +234,7 @@ class CommaDictValue(TokenValue):
 
 
 class FilterValue(TokenValue):
-    """Complex value type is user in WHERE clause"""
+    """Complex value type is used in WHERE clause"""
 
     @classmethod
     def validate(cls, value):
@@ -242,9 +244,9 @@ class FilterValue(TokenValue):
         """
         if not isinstance(value, (ConditionOperator, dict, QueryObject)):
             raise ValueError(
-                "Wrong value type for '%s' instance, must be %s,"
-                "dict or %s" % (cls.__name__, ConditionOperator.__name__,
-                                QueryObject.__name__))
+                "Wrong value type for '%s' instance, must be one of (%s, %s, %s)" % (
+                    cls.__name__, ConditionOperator.__name__, QueryObject.__name__, dict.__name__)
+            )
         if isinstance(value, dict):
             value = And(value)
         elif isinstance(value, QueryObject):

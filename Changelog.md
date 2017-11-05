@@ -9,7 +9,7 @@ Changelog
 * [Feature] Sub-queries, for example: SELECT * FROM (SELECT * FROM MyTable)
 * [Feature] JOIN ON functionality. Currently it supports JOIN USING syntax only
 * [Improvement] Add optional validation for operators (e.g validate IN value args)
-* [Improvement] Documentation: Q objects, GROUP BY syntax 
+* [Improvement] Documentation: GROUP BY syntax 
 
 ### END OF TODO
 
@@ -21,6 +21,8 @@ Changelog
 * [Feature] SelectQuery: Basic join support with USING keyword
 * [Feature] SelectQuery: Offset option
 * [Feature] User-function calls: SELECT * FROM my_custom_function(%s, %s, %s)
+* [Feature] F-objects: for update queries + README 
+* [Improvement] Documentation: Q-objects
 
 
 0.1.0 [2016-03-11]

@@ -3,7 +3,10 @@ import abc
 from collections import namedtuple
 
 
-__all__ = ['Or', 'And', 'Q', 'JOIN']
+__all__ = ['Or', 'And', 'Q', 'JOIN', 'F']
+
+
+NOT_A_VALUE = object()
 
 
 class Evaluable(object):
@@ -33,7 +36,10 @@ JOIN = join_t(CROSS='CROSS JOIN',
 
 
 class Operand(Evaluable):
-    """ WHERE clause operand representation
+    """ Any {field_name} {operator} {value} object representation
+    Used in:
+        - WHERE clause
+        - UPDATE .. SET a = 1 cases
     """
     def __init__(self, name, operator, value):
         self.name = name
@@ -42,21 +48,25 @@ class Operand(Evaluable):
 
     # NOTE: experimental method
     def __or__(self, other):
-        sql_str = "( {} {} %s OR {} {} %s )".format(
-            self.name, self.operator, other.name, other.operator)
-        return sql_str, (self.value, other.value, )
+        (t1, val1), (t2, val2) = self.eval(), other.eval()
+        sql_str = "( {} OR {} )".format(t1, t2)
+        return sql_str, (val1, val2,)
 
     # NOTE: experimental method
     def __and__(self, other):
-        sql_str = "( {} {} %s AND {} {} %s )".format(
-            self.name, self.operator, other.name, other.operator)
-        return sql_str, (self.value, other.value, )
+        (t1, val1), (t2, val2) = self.eval(), other.eval()
+
+        sql_str = "( {} AND {} )".format(t1, t2)
+        return sql_str, (val1, val2, )
 
     def __repr__(self):
         return "%s(name: '%s', operator: '%s', value: %s)" % (
             self.__class__.__name__, self.name, self.operator, self.value)
 
     def eval(self):
+        # We substitute field object to the template directly instead of passing it as '%s' parameters
+        if isinstance(self.value, FieldObject):
+            return "{} {} {}".format(self.name, self.operator, self.value.eval()), NOT_A_VALUE
         return "{} {} %s".format(self.name, self.operator), self.value
 
 
@@ -244,8 +254,8 @@ class QueryObject(Evaluable):
         return self.condition.eval()
 
 
-class FieldExpression(Evaluable):
-    """Field expression. Similar to django F expression.
+class FieldObject(Evaluable):
+    """Field object. Similar to django F expression.
     Allows to perform atomic operations directly pointing to the field value,
     e.g make such queries:
 
@@ -260,25 +270,25 @@ class FieldExpression(Evaluable):
         return self._value
 
     def __add__(self, other):
-        return FieldExpression("{} + {}".format(self.eval(), other))
+        return FieldObject("{} + {}".format(self.eval(), other))
 
     def __sub__(self, other):
-        return FieldExpression("{} - {}".format(self.eval(), other))
+        return FieldObject("{} - {}".format(self.eval(), other))
 
     def __mul__(self, other):
-        return FieldExpression("{} * {}".format(self.eval(), other))
+        return FieldObject("{} * {}".format(self.eval(), other))
 
     # py2 division method
     def __div__(self, other):
-        return FieldExpression("{} / {}".format(self.eval(), other))
+        return FieldObject("{} / {}".format(self.eval(), other))
 
     # py3 division methods
     def __truediv__(self, other):
-        return FieldExpression("{} / {}".format(self.eval(), other))
+        return FieldObject("{} / {}".format(self.eval(), other))
 
     def __floordiv__(self, other):
-        return FieldExpression("{} / {}".format(self.eval(), other))
+        return FieldObject("{} / {}".format(self.eval(), other))
 
 
 Q = QueryObject
-F = FieldExpression
+F = FieldObject

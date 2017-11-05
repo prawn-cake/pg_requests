@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict, Iterable
 import copy
-from pg_requests.operators import JOIN
+from pg_requests.operators import JOIN, NOT_A_VALUE
 
 from pg_requests.tokens import Token, CommaValue, StringValue, \
     FilterValue, NullValue, TupleValue, DictValue, CommaDictValue
@@ -112,7 +112,7 @@ class QueryBuilder(object):
                 sql_str_parts.append(eval_result[0])
 
                 # merge values tuple
-                values += tuple(eval_result[1])
+                values += tuple(filter(lambda v: v is not NOT_A_VALUE, eval_result[1]))
 
         query = (' '.join(sql_str_parts), values)
         return query

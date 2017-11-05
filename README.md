@@ -50,6 +50,18 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
         .offset(20)\
         .execute(cursor).fetchall()
 
+##### Q-object
+
+Q-object mimics django Q object and allows to build complex querying conditions (especially OR conditions for WHERE clause)
+    
+    from pg_requests import Q
+    
+    ...
+    users = qf.select('users')\
+            .filter(Q(name='Mr.Robot') | Q(login='anonymous'))\
+            .filter(Q(name='John'))
+            .execute(cursor)
+            .fetchall()
 
 #### Complex conditions
 
@@ -66,7 +78,8 @@ And this is already prepared query for `psycopg2.cursor` execution, rely on that
     
     qf.select('users')\
         .join('customers', join_type=JOIN.RIGHT_OUTER, using=('id', ))\
-        .filter(users__name='Mr.Robot').execute(cursor)
+        .filter(users__name='Mr.Robot')
+        .execute(cursor)
     
     # Query value
     ('SELECT * FROM users RIGHT OUTER JOIN customers USING (id) WHERE ( users.name = %s )', ('Mr.Robot',))
@@ -100,9 +113,15 @@ To use explicit form *{table}.{field}* you have to use the syntax:
 
 ### Insert
 
+**IMPORTANT: all the mutations require connection commit (or autocommit=True) option (fair for psycopg2 cursors)**
+
+
 #### Example
 
     qf.insert('users').data(name='x', login='y').returning('id').execute(cursor)
+    
+    # NOTE: If psycopg2 is used and no autocommit=True is enabled
+    cursor.connection.commit()
     
     
 ### Update
@@ -116,9 +135,27 @@ To use explicit form *{table}.{field}* you have to use the syntax:
     qf.update('users')._from('customers').data(users__value='customers.value')\
         .filter(users__id='customers.id').execute(cursor)
         
-
+    # NOTE: If psycopg2 is used and no autocommit=True is enabled
+    cursor.connection.commit()
+        
 **NOTE:** In the last example we use {table}__{field} syntax key evaluation
+
+
+##### F-object
+
+F-object is used to refer directly to a table field, useful for example for increments, i.e such SQL update query
+
+    UPDATE users 
+    SET count = count + 1
+    WHERE name = 'John';
+
+Can be implemented as
     
+    from pg_requests import F
+    
+    ...
+    qf.update('users').data(count=F('count') + 1).filter(name='John').execute(cursor)
+    cursor.connection.commit()
 
 
 ### Delete

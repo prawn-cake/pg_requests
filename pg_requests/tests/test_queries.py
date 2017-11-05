@@ -2,7 +2,7 @@
 import unittest
 from pg_requests import query_facade as qf
 from pg_requests.functions import fn
-from pg_requests.operators import And, Q, JOIN
+from pg_requests.operators import And, Q, JOIN, F
 
 
 class BaseQueryBuilderTest(unittest.TestCase):
@@ -198,3 +198,7 @@ class UpdateQueryTest(unittest.TestCase):
             'FROM customers WHERE ( users.id = %s )',
             ('customers.value', 'customers.id'))
         self.assertEqual(query, expected)
+
+    def test_update_using_f_object(self):
+        query = qf.update('users').data(count=F('count') + 1).filter(name='John').get_raw()
+        self.assertEqual(query, ('UPDATE users SET count = count + 1 WHERE ( name = %s )', ('John',)))
